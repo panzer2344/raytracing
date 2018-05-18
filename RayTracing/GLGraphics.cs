@@ -25,8 +25,14 @@ namespace RayTracing
 
         public List<int> textureIDs = new List<int>();
 
-        void Init() {
+        public int BasicProgramID { get; private set; }
+        int BasicVertexShader;
+        int BasicFragmentShader;
 
+        int vaoHandle;
+
+        public void Init() {
+            InitShaders();
         }
 
         public void Resize(int width, int height) {
@@ -108,8 +114,11 @@ namespace RayTracing
             //drawTexturedQuad();
             //GL.PopMatrix();
 
-            GL.Color3(Color.BlueViolet);
-            DrawSphere(1.0f, 20, 20);
+            //GL.Color3(Color.BlueViolet);
+            //DrawSphere(1.0f, 30, 30);
+
+            GL.UseProgram(BasicProgramID);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
         }
 
         public int LoadTexture(String filePath) {
@@ -180,6 +189,63 @@ namespace RayTracing
                 }
                 GL.End();
             }
+        }
+
+        void loadShader(String filename, ShaderType type, int program, out int adress) {
+            adress = GL.CreateShader(type);
+            using (System.IO.StreamReader sr = new System.IO.StreamReader(filename)) {
+                GL.ShaderSource(adress, sr.ReadToEnd());
+            }
+            GL.CompileShader(adress);
+            GL.AttachShader(program, adress);
+            Console.WriteLine(GL.GetShaderInfoLog(adress));
+        }
+
+        private void InitShaders() {
+
+            float[] positionData = { -0.8f, -0.8f, 0.0f, 0.8f, -0.8f, 0.0f, 0.0f, 0.8f, 0.0f };
+            float[] colorData = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+
+            int[] vboHandlers = new int[2];
+            GL.GenBuffers(2, vboHandlers);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandlers[0]);
+            GL.BufferData(BufferTarget.ArrayBuffer,
+                (IntPtr)(sizeof(float) * positionData.Length),
+                positionData, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandlers[1]);
+            GL.BufferData(BufferTarget.ArrayBuffer,
+                (IntPtr)(sizeof(float) * colorData.Length),
+                colorData, BufferUsageHint.StaticDraw);
+
+            vaoHandle = GL.GenVertexArray();
+            GL.BindVertexArray(vaoHandle);
+
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandlers[0]);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float,
+                false, 0, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandlers[1]);
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float,
+                false, 0, 0);
+
+            BasicProgramID = GL.CreateProgram();
+            loadShader(
+                "..\\..\\Shaders\\basic.vert", ShaderType.VertexShader, BasicProgramID,
+                out BasicVertexShader
+                );
+            loadShader(
+                "..\\..\\Shaders\\basic.frag", ShaderType.FragmentShader, BasicProgramID,
+                out BasicFragmentShader
+                );
+            GL.LinkProgram(BasicProgramID);
+
+            int status = 0;
+            GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
+
+            Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
         }
     }
 }

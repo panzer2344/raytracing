@@ -12,3 +12,17 @@ C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.Prope
 C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.csproj.GenerateResource.Cache
 C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.exe
 C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.pdb
+D:\Git\raytracing\RayTracing\bin\Debug\RayTracing.exe.config
+D:\Git\raytracing\RayTracing\bin\Debug\RayTracing.exe
+D:\Git\raytracing\RayTracing\bin\Debug\RayTracing.pdb
+D:\Git\raytracing\RayTracing\bin\Debug\OpenTK.pdb
+D:\Git\raytracing\RayTracing\bin\Debug\OpenTK.xml
+D:\Git\raytracing\RayTracing\bin\Debug\OpenTK.GLControl.xml
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.csprojResolveAssemblyReference.cache
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.Form1.resources
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.Properties.Resources.resources
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.csproj.GenerateResource.cache
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.csproj.CoreCompileInputs.cache
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.csproj.CopyComplete
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.exe
+D:\Git\raytracing\RayTracing\obj\Debug\RayTracing.pdb

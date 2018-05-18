@@ -24,17 +24,23 @@ namespace RayTracing
 
         private void glControl1_Load(object sender, EventArgs e)
         {
+            glslVersion.Text = GL.GetString(StringName.ShadingLanguageVersion);
+            glVersion.Text = GL.GetString(StringName.Version);
+
             GLGraphics.Resize(glControl1.Width, glControl1.Height);
             Application.Idle += Application_Idle;
 
             int texID = GLGraphics.LoadTexture("logo.png");
             GLGraphics.textureIDs.Add(texID);
+
+            GLGraphics.Init();
         }
 
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             GLGraphics.Update();
             glControl1.SwapBuffers();
+            GL.UseProgram(0);
         }
 
         private void glControl1_MouseMove(object sender, MouseEventArgs e)
