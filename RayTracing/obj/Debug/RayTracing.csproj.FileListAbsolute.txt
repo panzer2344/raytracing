@@ -1,0 +1,14 @@
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\RayTracing.exe.config
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\RayTracing.exe
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\RayTracing.pdb
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\OpenTK.dll
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\OpenTK.GLControl.dll
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\OpenTK.pdb
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\OpenTK.xml
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\bin\Debug\OpenTK.GLControl.xml
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.csprojResolveAssemblyReference.cache
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.Form1.resources
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.Properties.Resources.resources
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.csproj.GenerateResource.Cache
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.exe
+C:\Users\lexat\Documents\GitHub\raytracing\RayTracing\obj\Debug\RayTracing.pdb
