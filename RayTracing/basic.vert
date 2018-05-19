@@ -1,11 +1,14 @@
-#version 460
+#version 450
 
-layout (location = 0) in vec3 VertexPosition;
-layout (location = 1) in vec3 VertexColor;
+uniform float aspect;
+uniform vec3 campos;
+in vec3 vPosition;
 
-out vec3 Color;
+out vec3 origin, direction;
 
-void main(){
-	Color = VertexColor;
-	gl_Position = vec4(VertexPosition, 1.0f);
+void min(){
+	gl_Position = vec4(vPosition, 1.0f);
+	direction = normalize(vec3(vPosition.x*aspect, vPosition.y, -1.0f));
+	origin = campos;
 }
+
