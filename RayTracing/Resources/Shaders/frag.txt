@@ -1,0 +1,91 @@
+#version 450 core
+
+in vec3 origin, direction;
+out vec4 outputColor;
+
+struct Sphere {
+	vec3 position;
+	float radius;
+	vec3 color;
+};
+
+struct Ray {
+	vec3 origin;
+	vec3 direction;
+};
+
+struct RayNode {
+	Ray ray;
+	vec3 color;
+	int depth;
+};
+
+const int Max_Depth = 5;
+const int Max_Nodes = 64;
+RayNode rayNode[Max_Nodes];
+
+struct HitInfo {
+	bool hitDetected;
+	vec3 hitPoint;
+	vec3 surfaceNormal;
+	float distance;
+};
+
+void sphereIntersect(Ray ray, Sphere sphere, inout HitInfo hitInfo){
+	vec3 trackToSphere = ray.origin - sphere.position;
+	float a = dot(ray.direction, ray.direction);
+	float b = 2 * dot(trackToSphere, ray.direction);
+	float c = dot(trackToSphere, trackToSphere) - sphere.radius * sphere.radius;
+	float discriminant = b * b - 4.0 * a * c;
+
+	if(discriminant > 0.0){
+		float distance = (-b - sqrt(discriminant)) / (2.0 * a);
+
+		if(distance > 0.0001 && 
+			(distance < hitInfo.distance 
+			&& hitInfo.hitDetected || !hitInfo.hitDetected)
+		){
+			hitInfo.distance = distance;
+			hitInfo.hitPoint = ray.origin + ray.direction * hitInfo.distance;
+			hitInfo.surfaceNormal = normalize(hitInfo.hitPoint - sphere.position);
+			hitInfo.hitDetected = true;
+		}
+	}
+}
+
+vec3 iterativeRayTrace(Ray ray){
+	Sphere sphere;
+	sphere.position = vec3(0.0, 0.0, -1.0);
+	sphere.radius = 0.5;
+	sphere.color = vec3(0.9, 0.5, 0.7);
+
+	vec3 trackToSphere = ray.origin - sphere.position;
+
+	int numberOfNodes = 1, currentNodeIndex = 0;
+	
+	rayNode[currentNodeIndex].ray = ray;
+	rayNode[currentNodeIndex].depth = 0;
+	//rayNode[currentNodeIndex].color = sphere.color;
+	
+	while(currentNodeIndex < numberOfNodes){
+		HitInfo hitInfo;
+		vec3 rayVec = rayNode[currentNodeIndex].ray.direction;
+		float cosa = dot(trackToSphere, rayVec) / (sqrt(dot(trackToSphere, trackToSphere)) * sqrt(dot(rayVec, rayVec)));
+
+		hitInfo.hitDetected = false;
+		sphereIntersect(ray, sphere, hitInfo);
+
+		if(hitInfo.hitDetected){
+			rayNode[currentNodeIndex].color = sphere.color * cosa;
+		}
+		else break;
+		currentNodeIndex++;
+	}
+	return rayNode[0].color;
+}
+
+void main(){
+	Ray ray = Ray(origin, direction);
+	outputColor = vec4(iterativeRayTrace(ray), 1);
+	//FragColor = outputColor;
+}

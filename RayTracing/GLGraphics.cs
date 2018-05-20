@@ -33,12 +33,21 @@ namespace RayTracing
         //int[] vboHandlers = new int[2];
         int vboHandler;
 
+       
         Vector3[] vertdata = {
             new Vector3(-1.0f, -1.0f, 0.0f),
             new Vector3(1.0f, -1.0f, 0.0f),
             new Vector3(1.0f, 1.0f, 0.0f),
             new Vector3(-1.0f, 1.0f, 0.0f)
             };
+      
+        /*float[] vertdata = {
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f, 0.0f
+            };
+        */
 
         Vector3 campos = new Vector3(0.0f, 0.0f, 0.8f);
 
@@ -49,6 +58,7 @@ namespace RayTracing
     public void Init(int width, int height) {
             aspect = width / (float)height;
             InitShaders();
+            InitVBO();
         }
 
         public void Resize(int width, int height) {
@@ -65,7 +75,7 @@ namespace RayTracing
                 );
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref perspectiveMat);
-            SetupLighting();
+            //SetupLighting();
         }
 
         public void Update() {
@@ -141,11 +151,15 @@ namespace RayTracing
 
             GL.UseProgram(BasicProgramID);
 
+            //GL.BindVertexArray(vaoHandle);
+
             GL.Uniform1(aspectLocation, aspect);
             GL.Uniform3(camLocation, campos);
 
+            //GL.EnableVertexAttribArray(0);
             GL.DrawArrays(PrimitiveType.Polygon, 0, 4);
-            GL.UseProgram(0);
+            //GL.DisableVertexAttribArray(0);
+            //GL.UseProgram(0);
 
             //GL.DisableClientState(ArrayCap.VertexArray);
             //GL.DisableClientState(ArrayCap.ColorArray);
@@ -196,13 +210,16 @@ namespace RayTracing
             GL.Material(MaterialFace.Front, MaterialParameter.Shininess, materialShininess);
         }
 
-        private void DrawSphere(double r, int nx, int ny) {
+        private void DrawSphere(double r, int nx, int ny)
+        {
             int ix, iy;
             double x, y, z;
 
-            for (iy = 0; iy < ny; ++iy) {
+            for (iy = 0; iy < ny; ++iy)
+            {
                 GL.Begin(PrimitiveType.QuadStrip);
-                for (ix = 0; ix <= nx; ++ix) {
+                for (ix = 0; ix <= nx; ++ix)
+                {
                     x = r * Math.Sin(iy * Math.PI / ny) * Math.Cos(2 * ix * Math.PI / nx);
                     y = r * Math.Sin(iy * Math.PI / ny) * Math.Sin(2 * ix * Math.PI / nx);
                     z = r * Math.Cos(iy * Math.PI / ny);
@@ -225,31 +242,46 @@ namespace RayTracing
         void loadShader(String filename, ShaderType type, int program, out int adress) {
             adress = GL.CreateShader(type);
             using (System.IO.StreamReader sr = new System.IO.StreamReader(filename)) {
-                GL.ShaderSource(adress, sr.ReadToEnd());
-            }
+                string str;
+                str = sr.ReadToEnd();
+                //Console.WriteLine(str);
+                GL.ShaderSource(adress, str);
+            }            
+
             GL.CompileShader(adress);
             GL.AttachShader(program, adress);
-            Console.WriteLine(GL.GetShaderInfoLog(adress));
+
+            string error = GL.GetShaderInfoLog(adress);
+            Console.WriteLine(error);
         }
 
         private void InitShaders() {
 
             BasicProgramID = GL.CreateProgram();
             loadShader(
-                "..\\..\\Shaders\\basic.vert", ShaderType.VertexShader, BasicProgramID,
+                @"../../Resources/Shaders/vert.txt", ShaderType.VertexShader, BasicProgramID,
                 out BasicVertexShader
                 );
             loadShader(
-                "..\\..\\Shaders\\basic.frag", ShaderType.FragmentShader, BasicProgramID,
+                @"../../Resources/Shaders/frag.txt", ShaderType.FragmentShader, BasicProgramID,
                 out BasicFragmentShader
                 );
             GL.LinkProgram(BasicProgramID);
 
+            GL.DetachShader(BasicProgramID, BasicVertexShader);
+            GL.DetachShader(BasicProgramID, BasicFragmentShader);
+
+            GL.DeleteShader(BasicVertexShader);
+            GL.DeleteShader(BasicFragmentShader);
+
             int status = 0;
             GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
 
-            Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
+            string log = GL.GetProgramInfoLog(BasicProgramID);
+            Console.WriteLine(log);
+        }
 
+        private void InitVBO() {
             /*
             //float[] positionData = { -0.8f, -0.8f, 0.0f, 0.8f, -0.8f, 0.0f, 0.0f, 0.8f, 0.0f };
             //float[] colorData = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
@@ -283,16 +315,19 @@ namespace RayTracing
 
             GL.GenBuffers(1, out vboHandler);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandler);
-            GL.BufferData(BufferTarget.ArrayBuffer, 
+            GL.BufferData(BufferTarget.ArrayBuffer,
                 (IntPtr)(sizeof(float) * 3 * vertdata.Length),
                 vertdata, BufferUsageHint.StaticDraw);
 
-            //vaoHandle = GL.GenVertexArray();
-            //GL.BindVertexArray(vaoHandle);
+            vaoHandle = GL.GenVertexArray();
+            GL.BindVertexArray(vaoHandle);
 
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, vboHandler);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
+
+            //GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            //GL.BindVertexArray(0);
 
             camLocation = GL.GetUniformLocation(BasicProgramID, "campos");
             aspectLocation = GL.GetUniformLocation(BasicProgramID, "aspect");
