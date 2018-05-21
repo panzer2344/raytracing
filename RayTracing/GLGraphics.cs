@@ -13,7 +13,7 @@ namespace RayTracing
 {
     class GLGraphics
     {
-        Vector3 cameraPosition = new Vector3(2, 3, 4);
+        Vector3 cameraPosition = new Vector3(1, 1, 1);
         Vector3 cameraDirection = new Vector3(0, 0, 0);
         Vector3 cameraUp = new Vector3(0, 0, 1);
 
@@ -33,7 +33,10 @@ namespace RayTracing
         //int[] vboHandlers = new int[2];
         int vboHandler;
 
-       
+        private bool ChangeDCP = false;
+        Vector3 dcampos = new Vector3(0.0f, 0.0f, 0.005f);
+
+
         Vector3[] vertdata = {
             new Vector3(-1.0f, -1.0f, 0.0f),
             new Vector3(1.0f, -1.0f, 0.0f),
@@ -49,10 +52,9 @@ namespace RayTracing
             };
         */
 
-        Vector3 campos = new Vector3(0.0f, 0.0f, 0.8f);
+        Vector3 campos = new Vector3(0.0f, 0.0f, 0.5f);
 
         float aspect;
-
         int camLocation, aspectLocation;
 
     public void Init(int width, int height) {
@@ -92,6 +94,18 @@ namespace RayTracing
             Matrix4 viewMat = Matrix4.LookAt(cameraPosition, cameraDirection, cameraUp);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref viewMat);
+
+            if ((campos.Z >= 1.5f) && !ChangeDCP ){
+                dcampos = -dcampos;
+                ChangeDCP = true;
+            }
+
+            if ((campos.Z <= 0.5f) && ChangeDCP) {
+                dcampos = -dcampos;
+                ChangeDCP = false;
+            }
+
+            campos += dcampos;
 
             Render();
         }
