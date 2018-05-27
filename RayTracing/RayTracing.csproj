@@ -83,8 +83,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Shaders\frag.txt" />
-    <Content Include="Resources\Shaders\vert.txt" />
+    <None Include="Resources\Shaders\frag.frag" />
+    <None Include="Resources\Shaders\vert.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

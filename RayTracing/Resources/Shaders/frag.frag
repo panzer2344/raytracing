@@ -55,13 +55,6 @@ const int TYPE_TRANSPARENCY = 4;
 const int TYPE_SPHERE = 0;
 const int TYPE_TRIANGLE = 1;
 
-const int sphereNumber = 4;
-
-const int Max_Depth = 5;
-const int Max_Nodes = 64;
-RayNode rayNode[Max_Nodes];
-Sphere spheres[sphereNumber];
-
 struct HitInfo {
 	bool hitDetected;
 	vec3 hitPoint;
@@ -71,6 +64,115 @@ struct HitInfo {
 	int objectid;
 	int objectType;
 };
+
+Material mirror = {
+	vec3(0.0, 0.0, 0.0),
+	vec3(0.1, 0.1, 0.9),
+	vec3(0.0, 0.0, 0.0),
+	vec3(0.1, 1.0, 0.1),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	1, 
+	200
+};
+
+Material stone = {
+	vec3(0),
+	vec3(0.9, 0.3, 0.1),
+	vec3(0.0, 0.0, 0.0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	0,
+	0
+};
+
+Material light = {
+	vec3(0.0),
+	vec3(0.0),
+	vec3(0.0),
+	vec3(0.0),
+	vec3(1.0),
+	vec3(1.0),
+	vec3(0.0),
+	1.0,
+	300
+};
+
+Material gold = {
+	vec3(0.25, 0.2, 0.07),
+	vec3(0.75, 0.6, 0.23),
+	vec3(0.63, 0.56, 0.37),
+	vec3(1.0, 1.0, 1.0),
+	vec3(0.0, 0.0, 0.0),
+	vec3(0.0, 0.0, 0.0),
+	vec3(1.0, 1.0, 6),
+	0,
+	150
+};
+
+Material wood = {
+	vec3(0.25, 0.2, 0.07),
+	vec3(0.75, 0.6, 0.23),
+	vec3(0.63, 0.56, 0.37),
+	vec3(1.0, 1.0, 1.0),
+	vec3(0.0, 0.0, 0.0),
+	vec3(0.0, 0.0, 0.0),
+	vec3(1.0, 1.0, 6),
+	0,
+	150
+};
+
+Material black = {
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	vec3(0),
+	0,
+	0
+};
+
+const int sphereNumber = 2;
+const int triangleNumber = 1;
+const int objectNumber = sphereNumber + triangleNumber;
+
+const int Max_Depth = 5;
+const int Max_Nodes = 64;
+RayNode rayNode[Max_Nodes];
+Sphere spheres[sphereNumber];
+Triangle triangles[triangleNumber];
+
+void InitScene(){
+	spheres[0].position = vec3(1, 1, -0.4);
+	spheres[0].radius = 0.1;
+	spheres[0].material = light;
+
+	/*spheres[1].position = vec3(0.0, 1.0, -2.3);
+	spheres[1].radius = 0.7;
+	spheres[1].material = mirror;*/
+
+	spheres[0].position = vec3(-0.5, 0.0, -0.8);
+	spheres[0].radius = 0.8;
+	spheres[0].material = stone;
+
+	spheres[1].position = vec3(1.2, 0.9, -1.2);
+	spheres[1].radius = 0.4;
+	spheres[1].material = gold;
+
+	/*spheres[4].position = vec3(1.5, 1.0, -0.8);
+	spheres[4].radius = 0.6;
+	spheres[4].material = wood;*/
+
+	/*triangles[0].a = vec3(2, -2, -2);
+	triangles[0].b = vec3(2, 2, -2);
+	triangles[0].c = vec3(-2, -2, -2);
+	triangles[0].material = wood;*/
+}
 
 void sphereIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
 	Sphere sphere = spheres[objectid];
@@ -107,8 +209,21 @@ void sphereIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
 
 void triangleIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
 	Triangle triangle = triangles[objectid];
-	vec3 a, b, n;
-	a = triangle.a - ray.origin;
+	
+	vec3 normal = normalize(cross(triangle.b - triangle.a, triangle.c - triangle.a));
+	float d = dot(normal, triangle.a);
+	float distance = (d - dot(ray.origin, normal)) / dot(normal, ray.direction);
+	vec3 Point = ray.origin + ray.direction * distance;;
+
+	float firstCond = dot(cross((triangle.b - triangle.a), (Point - triangle.a)), normal);
+	float secondCond = dot(cross((triangle.c - triangle.b), (Point - triangle.b)), normal);
+	float thirdCond = dot(cross((triangle.a - triangle.c), (Point - triangle.c)), normal);
+
+	if(!((firstCond >= 0) && (secondCond >= 0) && (thirdCond >= 0)))
+		return;
+
+	//vec3 a, b, n;
+	/*a = triangle.a - ray.origin;
 	b = triangle.b - ray.origin;
 	n = cross(a,b);
 	float ip1 = dot(ray.direction, n);
@@ -119,44 +234,18 @@ void triangleIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
 	a = triangle.c - ray.origin;
 	b = triangle.a - ray.origin;
 	n = cross(a,b); 
-	float ip3 = dot(ray.direction, n);
+	float ip3 = dot(ray.direction, n);*/
 
-	if(!(((ip1 <= 0) && (ip2 <= 0) && (ip3 <= 0)) || ((ip1 >= 0) && (ip2 >= 0) && (ip3 >= 0))))
-		return;
+	//if(!(((ip1 <= 0) && (ip2 <= 0) && (ip3 <= 0)) || ((ip1 >= 0) && (ip2 >= 0) && (ip3 >= 0))))
+	//	return;
 
-	vec3 normal = normalize(cross(triangle.b - triangle.a, triangle.c - triangle.a));
-	float distance = -dot(normal, ray.origin - triangle.a) / dot(normal, ray.direction);
-	hitInfo.distance = distance;
-
-	/*vec3 trackToSphere = ray.origin - sphere.position;
-	float a = dot(ray.direction, ray.direction);
-	float b = 2 * dot(trackToSphere, ray.direction);
-	float c = dot(trackToSphere, trackToSphere) - sphere.radius * sphere.radius;
-	float discriminant = b * b - 4.0 * a * c;
-
-	if(discriminant > 0.0){
-		float sdiscriminant = sqrt(discriminant);
-		float t1 = ( -b - sdiscriminant ) / (2 * a);
-		//float t2 = ( -b + sdiscriminant ) / (2 * a);
-		float distance;
-
-		//if(t1 > t2) distance = t2;
-		//else distance = t1;
-
-		distance = t1;
-
-		if(distance > 0.0001 && 
-			(distance < hitInfo.distance 
-			&& hitInfo.hitDetected || !hitInfo.hitDetected)
-		){
-			hitInfo.distance = distance;
-			hitInfo.hitPoint = ray.origin + ray.direction * hitInfo.distance;
-			hitInfo.surfaceNormal = normalize(hitInfo.hitPoint - sphere.position);
-			hitInfo.objectType = TYPE_SPHERE;
-			hitInfo.objectid = objectid;
-			hitInfo.hitDetected = true;
-		}
-		*/
+	if(distance > 0.0001 && (distance < hitInfo.distance && hitInfo.hitDetected || !hitInfo.hitDetected))
+	{
+		hitInfo.distance = distance;
+		hitInfo.hitPoint = Point;
+		hitInfo.objectType = TYPE_TRIANGLE;
+		hitInfo.objectid = objectid;
+		hitInfo.hitDetected = true;
 	}
 }
 
@@ -169,8 +258,7 @@ vec3 phongShading(Material material, Material lightMaterial, vec3 hitPoint, vec3
 		float diffuseCoef = max(0.0, dot(surfaceNormal, lightDir));
 		float specularCoef = pow(dot(eyeDir, reflectDir), material.shiness);
 
-		return material.ambient * lightMaterial.ambient + (material.diffuse * lightMaterial.emission * diffuseCoef + 
-			material.specular * lightMaterial.emission * specularCoef) * attenuation;
+		return material.ambient * lightMaterial.ambient + (material.diffuse * lightMaterial.emission * diffuseCoef + material.specular * lightMaterial.emission * specularCoef) * attenuation;
 	}
 
 bool isShadowed(vec3 hitPoint, int lightIndex, int lightType, inout vec3 transparency){
@@ -178,23 +266,41 @@ bool isShadowed(vec3 hitPoint, int lightIndex, int lightType, inout vec3 transpa
 	hitInfoLight.hitDetected = false;
 	Ray ray;
 	
-	Sphere light = spheres[lightIndex];
-	vec3 eps = normalize(light.position - hitPoint) * 0.001;
-	ray = Ray(hitPoint + eps, normalize(light.position - hitPoint), TYPE_SHADOW);
-	sphereIntersect(ray, lightIndex, hitInfoLight);
+	if(lightType == TYPE_SPHERE){
+		Sphere light = spheres[lightIndex];
+		vec3 eps = normalize(light.position - hitPoint) * 0.001;
+		ray = Ray(hitPoint + eps, normalize(light.position - hitPoint), TYPE_SHADOW);
+		sphereIntersect(ray, lightIndex, hitInfoLight);
+	}
+	if(lightType == TYPE_TRIANGLE){
+		Triangle light = triangles[lightIndex];
+		vec3 center = (light.a + light.b + light.c) / 3;
+		vec3 eps = normalize(center - hitPoint) * 0.001;
+		ray = Ray(hitPoint + eps, normalize(center - hitPoint), TYPE_SHADOW);
+		sphereIntersect(ray, lightIndex, hitInfoLight);
+	}
 
 	float distance = hitInfoLight.distance;
 	HitInfo hitInfo;
 	transparency = vec3(1.0);
-	for(int i = 0; i < sphereNumber; i++){
+	for(int i = 0; i < objectNumber; i++){
 		hitInfo.hitDetected = false;
 		Material material;
 		int type;
-		int index = i;
+		int index ;
 
-		material = spheres[index].material;
-		type = TYPE_SPHERE;
-		sphereIntersect(ray, index, hitInfo);
+		if(i < sphereNumber){
+			index = i;
+			material = spheres[index].material;
+			type = TYPE_SPHERE;
+			sphereIntersect(ray, index, hitInfo);
+		}
+		else{
+			index = i - sphereNumber;
+			material = triangles[index].material;
+			type = TYPE_TRIANGLE;
+			sphereIntersect(ray, index, hitInfo);
+		}
 
 		if((lightIndex != index || lightType != type) && hitInfo.hitDetected && hitInfo.distance < distance){
 			if(length(material.transparency) > 0){
@@ -212,7 +318,11 @@ bool isShadowed(vec3 hitPoint, int lightIndex, int lightType, inout vec3 transpa
 vec3 calculateColor(HitInfo hitInfo){
 	Material material;
 
-	material = spheres[hitInfo.objectid].material;
+	if(hitInfo.objectType == TYPE_SPHERE)
+		material = spheres[hitInfo.objectid].material;
+	
+	if(hitInfo.objectType == TYPE_TRIANGLE)
+		material = triangles[hitInfo.objectid].material;
 
 	vec3 hitPoint = hitInfo.hitPoint;
 	vec3 surfaceNormal = hitInfo.surfaceNormal;
@@ -222,15 +332,25 @@ vec3 calculateColor(HitInfo hitInfo){
 	
 	vec3 resultColor = vec3(0);
 
-	for(int i = 0; i < sphereNumber; i++){
+	for(int i = 0; i < objectNumber; i++){
 		Material lightMaterial;
 		vec3 lightPosition;
 		int lightType;
 		int lightIndex = i;
 		
-		lightMaterial = spheres[lightIndex].material;
-		lightPosition = spheres[lightIndex].position;
-		lightType = TYPE_SPHERE;
+		if(i < sphereNumber){
+			lightIndex = i;
+			lightMaterial = spheres[lightIndex].material;
+			lightPosition = spheres[lightIndex].position;
+			lightType = TYPE_SPHERE;
+		}
+		else{
+			lightIndex = i - sphereNumber;
+			lightMaterial = triangles[lightIndex].material;
+			//lightPosition = triangles[lightIndex].center;
+			lightPosition = (triangles[lightIndex].a + triangles[lightIndex].b + triangles[lightIndex].c) / 3;
+			lightType = TYPE_TRIANGLE;
+		}
 
 		vec3 transparency;
 
@@ -258,54 +378,6 @@ vec3 calculateColor(HitInfo hitInfo){
 	return resultColor;
 }
 
-Material mirror = {
-	vec3(0.9, 0.9, 0.9),
-	vec3(0.1, 0.1, 0.1),
-	vec3(1.0, 1.0, 1.0),
-	vec3(1.0, 1.0, 1.0),
-	vec3(0),
-	vec3(0),
-	vec3(0),
-	1, 
-	200
-};
-
-Material stone = {
-	vec3(0),
-	vec3(0.6, 0.6, 0.0),
-	vec3(0.0, 0.0, 0.0),
-	vec3(0),
-	vec3(0),
-	vec3(0),
-	vec3(0),
-	0,
-	0
-};
-
-Material light = {
-	vec3(0.0),
-	vec3(0.0),
-	vec3(0.0),
-	vec3(0.0),
-	vec3(1.0),
-	vec3(1.0),
-	vec3(0.0),
-	1.0,
-	300
-};
-
-Material gold = {
-	vec3(0.25, 0.2, 0.07),
-	vec3(0.75, 0.6, 0.23),
-	vec3(0.63, 0.56, 0.37),
-	vec3(1.0, 1.0, 1.0),
-	vec3(0.0, 0.0, 0.0),
-	vec3(0.0, 0.0, 0.0),
-	vec3(1.0, 1.0, 6),
-	0,
-	150
-};
-
 vec3 iterativeRayTrace(Ray ray){
 	float cosa = 0.0f;
 	float sina = 1.0f;
@@ -313,38 +385,7 @@ vec3 iterativeRayTrace(Ray ray){
 
 	hitInfo.hitPoint = ray.origin;
 
-	spheres[0].position = vec3(1.0, 1.0, 0.2);
-	spheres[0].radius = 0.1;
-	spheres[0].material = light;
-
-	spheres[1].position = vec3(0.0, 1.0, -2.3);
-	spheres[1].radius = 0.7;
-	spheres[1].material = mirror;
-
-	spheres[2].position = vec3(0.0, 0.0, -0.8);
-	spheres[2].radius = 0.8;
-	spheres[2].material = stone;
-
-	spheres[3].position = vec3(1.2, 0.9, -1.2);
-	spheres[3].radius = 0.4;
-	spheres[3].material = gold;
-
-	/*spheres[4].position = vec3(0.0, 0.0, -0.6);
-	spheres[4].radius = 1;
-	//spheres[4].color = vec3(0.9, 0.5, 0.7);
-	spheres[4].material = stone;
-
-	
-	spheres[2].position = vec3(0.5, 0.0, -100.7);
-	spheres[2].radius = 0.9;
-	//spheres[2].color = vec3(0.3, 0.3, 0.9);
-	spheres[2].material = stone;
-
-	spheres[3].position = vec3(0.0, 1.0, -100.8);
-	spheres[3].radius = 1.2;
-	//spheres[3].color = vec3(0.9, 0.9, 0.3);
-	spheres[3].material = mirror;
-	*/
+	InitScene();
 
 	int numberOfNodes = 1, currentNodeIndex = 0;
 	
@@ -357,6 +398,7 @@ vec3 iterativeRayTrace(Ray ray){
 
 		rayNode[currentNodeIndex].diffuseColor = vec3(0);
 		rayNode[currentNodeIndex].reflectionColor = vec3(0);
+		rayNode[currentNodeIndex].refractionColor = vec3(0);
 
 		hitInfo.hitDetected = false;
 
@@ -364,13 +406,25 @@ vec3 iterativeRayTrace(Ray ray){
 			sphereIntersect(rayNode[currentNodeIndex].ray, i, hitInfo);
 		}
 
+		for(int i = 0; i < sphereNumber; i++){
+			triangleIntersect(rayNode[currentNodeIndex].ray, i, hitInfo);
+		}
+
 		if(hitInfo.hitDetected){
-			Material material = spheres[hitInfo.objectid].material;
+			Material material;
+			
+			switch(hitInfo.objectType){
+				case TYPE_SPHERE: material = spheres[hitInfo.objectid].material; break;
+				//case TYPE_PLANE: material = planes[hitInfo.objectid].material; break;
+				case TYPE_TRIANGLE: material = triangles[hitInfo.objectid].material; break;
+			}
 			
 			//cosa = dot(hitInfo.surfaceNormal, rayVec) * dot(hitInfo.surfaceNormal, rayVec) / (sqrt(dot(hitInfo.surfaceNormal, hitInfo.surfaceNormal)) * sqrt(dot(rayVec, rayVec)));
 			//sina = sqrt(1 - cosa * cosa);
 
+			rayNode[currentNodeIndex].specular = material.specular;
 			rayNode[currentNodeIndex].reflection = material.reflection;
+			rayNode[currentNodeIndex].refraction = material.transparency;
 
 			if(length(material.reflection) > 0.0f && rayNode[currentNodeIndex].depth < Max_Depth){
 				vec3 reflectionDir = normalize(reflect(rayNode[currentNodeIndex].ray.direction, hitInfo.surfaceNormal));
@@ -407,15 +461,6 @@ vec3 iterativeRayTrace(Ray ray){
 			}
 			currentNodeIndex++;
 
-			for(int i = currentNodeIndex - 1; i > 0; i--){
-				vec3 nodeColor = rayNode[i].diffuseColor + rayNode[i].reflectionColor * rayNode[i].reflection + rayNode[i].refractionColor * rayNode[i].refraction;
-
-				if(rayNode[i].ray.type == TYPE_REFLECTION)
-					rayNode[rayNode[i].parentIndex].reflectionColor = nodeColor;
-				else if(rayNode[i].ray.type == TYPE_TRANSPARENCY)
-					rayNode[rayNode[i].parentIndex].refractionColor = nodeColor;
-			}
-
 			/*rayNode[currentNodeIndex].color = hitInfo.color * cosa;
 			if(currentNodeIndex < Max_Nodes){
 				rayNode[currentNodeIndex].ray = Ray(ray.direction * sina, hitInfo.hitPoint);
@@ -427,6 +472,15 @@ vec3 iterativeRayTrace(Ray ray){
 	}
 	//if(currentNodeIndex == 0) return vec3(0.0, 0.0, 0.0);
 	//else return rayNode[0].color;
+
+	for(int i = currentNodeIndex - 1; i > 0; i--){
+		vec3 nodeColor = rayNode[i].diffuseColor + rayNode[i].reflectionColor * rayNode[i].reflection + rayNode[i].refractionColor * rayNode[i].refraction;
+
+		if(rayNode[i].ray.type == TYPE_REFLECTION)
+			rayNode[rayNode[i].parentIndex].reflectionColor = nodeColor;
+		else if(rayNode[i].ray.type == TYPE_TRANSPARENCY)
+			rayNode[rayNode[i].parentIndex].refractionColor = nodeColor;
+	}
 
 	return clamp(rayNode[0].diffuseColor + rayNode[0].reflectionColor * rayNode[0].reflection + rayNode[0].refractionColor * rayNode[0].refraction, vec3(0), vec3(1));
 	//return rayNode[0].diffuseColor;

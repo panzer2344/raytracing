@@ -13,7 +13,7 @@ namespace RayTracing
 {
     class GLGraphics
     {
-        Vector3 cameraPosition = new Vector3(1, 1, 1);
+        Vector3 cameraPosition = new Vector3(0, 0, 1.5f);
         Vector3 cameraDirection = new Vector3(0, 0, 0);
         Vector3 cameraUp = new Vector3(0, 0, 1);
 
@@ -34,8 +34,7 @@ namespace RayTracing
         int vboHandler;
 
         private bool ChangeDCP = false;
-        Vector3 dcampos = new Vector3(0.0f, 0.0f, 0.005f);
-
+        Vector3 dcampos = new Vector3(0.0f, 0.0f, 0.001f);
 
         Vector3[] vertdata = {
             new Vector3(-1.0f, -1.0f, 0.0f),
@@ -43,16 +42,8 @@ namespace RayTracing
             new Vector3(1.0f, 1.0f, 0.0f),
             new Vector3(-1.0f, 1.0f, 0.0f)
             };
-      
-        /*float[] vertdata = {
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f
-            };
-        */
 
-        Vector3 campos = new Vector3(0.0f, 0.0f, 0.5f);
+    Vector3 campos = new Vector3(0.0f, 0.0f, 1.5f);
 
         float aspect;
         int camLocation, aspectLocation;
@@ -273,11 +264,11 @@ namespace RayTracing
 
             BasicProgramID = GL.CreateProgram();
             loadShader(
-                @"../../Resources/Shaders/vert.txt", ShaderType.VertexShader, BasicProgramID,
+                @"../../Resources/Shaders/vert.vert", ShaderType.VertexShader, BasicProgramID,
                 out BasicVertexShader
                 );
             loadShader(
-                @"../../Resources/Shaders/frag.txt", ShaderType.FragmentShader, BasicProgramID,
+                @"../../Resources/Shaders/frag.frag", ShaderType.FragmentShader, BasicProgramID,
                 out BasicFragmentShader
                 );
             GL.LinkProgram(BasicProgramID);
