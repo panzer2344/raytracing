@@ -22,6 +22,13 @@ struct Sphere {
 	//vec3 color;
 };
 
+struct Triangle{
+	vec3 a;
+	vec3 b;
+	vec3 c;
+	Material material;
+};
+
 struct Ray {
 	vec3 origin;
 	vec3 direction;
@@ -46,6 +53,7 @@ const int TYPE_SHADOW = 2;
 const int TYPE_TRANSPARENCY = 4;
 
 const int TYPE_SPHERE = 0;
+const int TYPE_TRIANGLE = 1;
 
 const int sphereNumber = 4;
 
@@ -96,6 +104,62 @@ void sphereIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
 		}
 	}
 }
+
+void triangleIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
+	Triangle triangle = triangles[objectid];
+	vec3 a, b, n;
+	a = triangle.a - ray.origin;
+	b = triangle.b - ray.origin;
+	n = cross(a,b);
+	float ip1 = dot(ray.direction, n);
+	a = triangle.b - ray.origin;
+	b = triangle.c - ray.origin;
+	n = cross(a,b);
+	float ip2 = dot(ray.direction, n);
+	a = triangle.c - ray.origin;
+	b = triangle.a - ray.origin;
+	n = cross(a,b); 
+	float ip3 = dot(ray.direction, n);
+
+	if(!(((ip1 <= 0) && (ip2 <= 0) && (ip3 <= 0)) || ((ip1 >= 0) && (ip2 >= 0) && (ip3 >= 0))))
+		return;
+
+	vec3 normal = normalize(cross(triangle.b - triangle.a, triangle.c - triangle.a));
+	float distance = -dot(normal, ray.origin - triangle.a) / dot(normal, ray.direction);
+	hitInfo.distance = distance;
+
+	/*vec3 trackToSphere = ray.origin - sphere.position;
+	float a = dot(ray.direction, ray.direction);
+	float b = 2 * dot(trackToSphere, ray.direction);
+	float c = dot(trackToSphere, trackToSphere) - sphere.radius * sphere.radius;
+	float discriminant = b * b - 4.0 * a * c;
+
+	if(discriminant > 0.0){
+		float sdiscriminant = sqrt(discriminant);
+		float t1 = ( -b - sdiscriminant ) / (2 * a);
+		//float t2 = ( -b + sdiscriminant ) / (2 * a);
+		float distance;
+
+		//if(t1 > t2) distance = t2;
+		//else distance = t1;
+
+		distance = t1;
+
+		if(distance > 0.0001 && 
+			(distance < hitInfo.distance 
+			&& hitInfo.hitDetected || !hitInfo.hitDetected)
+		){
+			hitInfo.distance = distance;
+			hitInfo.hitPoint = ray.origin + ray.direction * hitInfo.distance;
+			hitInfo.surfaceNormal = normalize(hitInfo.hitPoint - sphere.position);
+			hitInfo.objectType = TYPE_SPHERE;
+			hitInfo.objectid = objectid;
+			hitInfo.hitDetected = true;
+		}
+		*/
+	}
+}
+
 
 vec3 phongShading(Material material, Material lightMaterial, vec3 hitPoint, vec3 surfaceNormal,
 				vec3 lightDir, vec3 reflectDir, vec3 eyeDir, float distance){
