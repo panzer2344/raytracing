@@ -66,22 +66,22 @@ struct HitInfo {
 };
 
 Material mirror = {
+	vec3(0.4, 0.3, 0.1),
+	vec3(0.9, 0.8, 0.9),
+	vec3(0.87, 0.83, 0.85),
+	vec3(1.0, 1.0, 1.0),
+	vec3(0.07, 0.04, 0.02),
 	vec3(0.0, 0.0, 0.0),
-	vec3(0.1, 0.1, 0.9),
-	vec3(0.0, 0.0, 0.0),
-	vec3(0.1, 1.0, 0.1),
-	vec3(0),
-	vec3(0),
-	vec3(0),
-	1, 
-	200
+	vec3(0.97, 0.95, 0.99),
+	0.4,
+	400
 };
 
 Material stone = {
 	vec3(0),
 	vec3(0.9, 0.3, 0.1),
-	vec3(0.0, 0.0, 0.0),
-	vec3(0),
+	vec3(0.0),
+	vec3(0.0),
 	vec3(0),
 	vec3(0),
 	vec3(0),
@@ -91,12 +91,12 @@ Material stone = {
 
 Material light = {
 	vec3(0.0),
+	vec3(0.65, 0.64, 0.17),
 	vec3(0.0),
 	vec3(0.0),
-	vec3(0.0),
+	vec3(0.5),
 	vec3(1.0),
-	vec3(1.0),
-	vec3(0.0),
+	vec3(0.002),
 	1.0,
 	300
 };
@@ -108,12 +108,12 @@ Material gold = {
 	vec3(1.0, 1.0, 1.0),
 	vec3(0.0, 0.0, 0.0),
 	vec3(0.0, 0.0, 0.0),
-	vec3(1.0, 1.0, 6),
+	vec3(1.0, 1.0, 0.6),
 	0,
 	150
 };
 
-Material wood = {
+/*Material wood = {
 	vec3(0.25, 0.2, 0.07),
 	vec3(0.75, 0.6, 0.23),
 	vec3(0.63, 0.56, 0.37),
@@ -123,7 +123,7 @@ Material wood = {
 	vec3(1.0, 1.0, 6),
 	0,
 	150
-};
+};*/
 
 Material black = {
 	vec3(0),
@@ -137,32 +137,52 @@ Material black = {
 	0
 };
 
-const int sphereNumber = 2;
+const int sphereNumber = 6;
 const int triangleNumber = 1;
 const int objectNumber = sphereNumber + triangleNumber;
 
-const int Max_Depth = 5;
+const int Max_Depth = 4;
 const int Max_Nodes = 64;
 RayNode rayNode[Max_Nodes];
 Sphere spheres[sphereNumber];
 Triangle triangles[triangleNumber];
 
 void InitScene(){
-	spheres[0].position = vec3(1, 1, -0.4);
+	/*spheres[0].position = vec3(7, 12, 4);
+	spheres[0].radius = 2;
+	spheres[0].material = light;*/
+
+	spheres[0].position = vec3(-7, 6, 4);
+	spheres[0].radius = 2;
+	spheres[0].material = light;
+
+	spheres[1].position = vec3(-0.5, 0.0, -0.8);
+	spheres[1].radius = 0.8;
+	spheres[1].material = stone;
+
+	spheres[2].position = vec3(-2.5, 1.5, -1.9);
+	spheres[2].radius = 1.1;
+	spheres[2].material = gold;
+
+	spheres[3].position = vec3(0.9, 2.4, -2.3);
+	spheres[3].radius = 1.3;
+	spheres[3].material = mirror;
+	
+	/*spheres[0].position = vec3(1, 1, -0.4);
 	spheres[0].radius = 0.1;
 	spheres[0].material = light;
 
-	/*spheres[1].position = vec3(0.0, 1.0, -2.3);
+	spheres[1].position = vec3(0.0, 1.0, -2.3);
 	spheres[1].radius = 0.7;
-	spheres[1].material = mirror;*/
+	spheres[1].material = mirror;
 
-	spheres[0].position = vec3(-0.5, 0.0, -0.8);
-	spheres[0].radius = 0.8;
-	spheres[0].material = stone;
+	spheres[2].position = vec3(-0.5, 0.0, -0.8);
+	spheres[2].radius = 0.8;
+	spheres[2].material = stone;
 
 	spheres[1].position = vec3(1.2, 0.9, -1.2);
 	spheres[1].radius = 0.4;
-	spheres[1].material = gold;
+	spheres[1].material = gold;*/
 
 	/*spheres[4].position = vec3(1.5, 1.0, -0.8);
 	spheres[4].radius = 0.6;
@@ -171,7 +191,7 @@ void InitScene(){
 	/*triangles[0].a = vec3(2, -2, -2);
 	triangles[0].b = vec3(2, 2, -2);
 	triangles[0].c = vec3(-2, -2, -2);
-	triangles[0].material = wood;*/
+	triangles[0].material = stone;*/
 }
 
 void sphereIntersect(Ray ray, int objectid, inout HitInfo hitInfo){
@@ -474,13 +494,13 @@ vec3 iterativeRayTrace(Ray ray){
 	//else return rayNode[0].color;
 
 	for(int i = currentNodeIndex - 1; i > 0; i--){
-		vec3 nodeColor = rayNode[i].diffuseColor + rayNode[i].reflectionColor * rayNode[i].reflection + rayNode[i].refractionColor * rayNode[i].refraction;
+			vec3 nodeColor = rayNode[i].diffuseColor + rayNode[i].reflectionColor * rayNode[i].reflection + rayNode[i].refractionColor * rayNode[i].refraction;
 
-		if(rayNode[i].ray.type == TYPE_REFLECTION)
-			rayNode[rayNode[i].parentIndex].reflectionColor = nodeColor;
-		else if(rayNode[i].ray.type == TYPE_TRANSPARENCY)
-			rayNode[rayNode[i].parentIndex].refractionColor = nodeColor;
-	}
+			if(rayNode[i].ray.type == TYPE_REFLECTION)
+				rayNode[rayNode[i].parentIndex].reflectionColor = nodeColor;
+			else if(rayNode[i].ray.type == TYPE_TRANSPARENCY)
+				rayNode[rayNode[i].parentIndex].refractionColor = nodeColor;
+		}
 
 	return clamp(rayNode[0].diffuseColor + rayNode[0].reflectionColor * rayNode[0].reflection + rayNode[0].refractionColor * rayNode[0].refraction, vec3(0), vec3(1));
 	//return rayNode[0].diffuseColor;
